@@ -11,7 +11,7 @@ int _printf(const char *format, ...) {
             putchar(format[i]);
             count++;
         } else {
-            i++; // skip the '%' character
+            i++; 
             switch (format[i]) {
                 case 'c': {
                     char c = (char) va_arg(args, int);
