@@ -1,5 +1,4 @@
-#include <stdio.h>
-#include <stdarg.h>
+#include "mian.h"
 
 /**
  * _printf - Produces output according to a format.
