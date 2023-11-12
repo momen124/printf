@@ -1,14 +1,28 @@
+#include "main.h"
 #include <stdarg.h>
 #include <stdio.h>
 
 /**
- * _printf - Produces output according to a format.
- * @format: The format string.
- *
- * Return: The number of characters printed (excluding the null byte used
- * to end output to strings).
+ * print_char - Print a character
+ * @args: Argument list
+ * @flags: Pointer to flags structure
+ * Return: Number of characters printed
  */
-int _printf(const char *format, ...) {
+int print_char(va_list args, flags_t *flags)
+{
+    int c = va_arg(args, int);
+    return _putchar(c);
+}
+
+/**
+ * print_str - Print a string
+ * @args: Argument list
+ * @flags: Pointer to flags structure
+ * Return: Number of characters printed
+ */
+int print_str(va_list args, flags_t *flags)
+{
+    char *s = va_arg(args, char *);
     int count = 0;
     int i = 0, j = 0;
     va_list args;
@@ -49,7 +63,8 @@ int _printf(const char *format, ...) {
     return count;
 }
 
-int main() {
+int main()
+{
     _printf("Hello, World!\n");
     _printf("This is a %c test\n", 'c');
     _printf("This is a %% test\n");

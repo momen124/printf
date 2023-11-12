@@ -1,6 +1,7 @@
 #ifndef PRINTF_H
 #define PRINTF_H
 #include <stdlib.h>
+#include <stdlib.h>
 #include <stdarg.h>
 
 /**
@@ -73,4 +74,4 @@ int print_address(va_list l, flags_t *f);
 int print_percent(va_list l, flags_t *f);
 
 
-#endif /* PRINTF_H */
+#endif  /* PRINTF_H */
