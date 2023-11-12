@@ -1,72 +1,90 @@
 #include "main.h"
-#include <stdarg.h>
-#include <stdio.h>
+
+void cleanup(va_list args, buffer_t *output);
+int run_printf(const char *format, va_list args, buffer_t *output);
+int _printf(const char *format, ...);
 
 /**
- * print_char - Print a character
- * @args: Argument list
- * @flags: Pointer to flags structure
- * Return: Number of characters printed
+ * cleanup - Peforms cleanup operations for _printf.
+ * @args: A va_list of arguments provided to _printf.
+ * @output: A buffer_t struct.
  */
-int print_char(va_list args, flags_t *flags)
+void cleanup(va_list args, buffer_t *output)
 {
-    int c = va_arg(args, int);
-    return _putchar(c);
+	va_end(args);
+	write(1, output->start, output->len);
+	free_buffer(output);
 }
 
 /**
- * print_str - Print a string
- * @args: Argument list
- * @flags: Pointer to flags structure
- * Return: Number of characters printed
+ * run_printf - Reads through the format string for _printf.
+ * @format: Character string to print - may contain directives.
+ * @output: A buffer_t struct containing a buffer.
+ * @args: A va_list of arguments.
+ *
+ * Return: The number of characters stored to output.
  */
-int print_str(va_list args, flags_t *flags)
+int run_printf(const char *format, va_list args, buffer_t *output)
 {
-    char *s = va_arg(args, char *);
-    int count = 0;
-    int i = 0, j = 0;
-    va_list args;
-    va_start(args, format);
+	int i, wid, prec, ret = 0;
+	char tmp;
+	unsigned char flags, len;
+	unsigned int (*f)(va_list, buffer_t *,
+			unsigned char, int, int, unsigned char);
 
-    for (i = 0; format[i] != '\0'; i++) {
-        if (format[i] != '%') {
-            putchar(format[i]);
-            count++;
-        } else {
-            
-            i++;
-            switch (format[i]) {
-                case 'c': {
-                    int c = va_arg(args, int);
-                    putchar(c);
-                    count++;
-                    break;
-                }
-                case 's': {
-                    char *s = va_arg(args, char *);
-                    for (j = 0; s[j] != '\0'; j++) {
-                        putchar(s[j]);
-                        count++;
-                    }
-                    break;
-                }
-                case '%': {
-                    putchar('%');
-                    count++;
-                    break;
-                }
-            }
-        }
-    }
+	for (i = 0; *(format + i); i++)
+	{
+		len = 0;
+		if (*(format + i) == '%')
+		{
+			tmp = 0;
+			flags = handle_flags(format + i + 1, &tmp);
+			wid = handle_width(args, format + i + tmp + 1, &tmp);
+			prec = handle_precision(args, format + i + tmp + 1,
+					&tmp);
+			len = handle_length(format + i + tmp + 1, &tmp);
 
-    va_end(args);
-    return count;
+			f = handle_specifiers(format + i + tmp + 1);
+			if (f != NULL)
+			{
+				i += tmp + 1;
+				ret += f(args, output, flags, wid, prec, len);
+				continue;
+			}
+			else if (*(format + i + tmp + 1) == '\0')
+			{
+				ret = -1;
+				break;
+			}
+		}
+		ret += _memcpy(output, (format + i), 1);
+		i += (len != 0) ? 1 : 0;
+	}
+	cleanup(args, output);
+	return (ret);
 }
 
-int main()
+/**
+ * _printf - Outputs a formatted string.
+ * @format: Character string to print - may contain directives.
+ *
+ * Return: The number of characters printed.
+ */
+int _printf(const char *format, ...)
 {
-    _printf("Hello, World!\n");
-    _printf("This is a %c test\n", 'c');
-    _printf("This is a %% test\n");
-    return 0;
+	buffer_t *output;
+	va_list args;
+	int ret;
+
+	if (format == NULL)
+		return (-1);
+	output = init_buffer();
+	if (output == NULL)
+		return (-1);
+
+	va_start(args, format);
+
+	ret = run_printf(format, args, output);
+
+	return (ret);
 }
