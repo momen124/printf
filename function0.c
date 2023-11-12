@@ -10,15 +10,16 @@
  */
 int _printf(const char *format, ...) {
     int count = 0;
+    int i = 0, j = 0;
     va_list args;
     va_start(args, format);
-    int i = 0, j = 0;
 
     for (i = 0; format[i] != '\0'; i++) {
         if (format[i] != '%') {
             putchar(format[i]);
             count++;
         } else {
+            
             i++;
             switch (format[i]) {
                 case 'c': {
